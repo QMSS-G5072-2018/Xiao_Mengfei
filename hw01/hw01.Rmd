@@ -1,0 +1,58 @@
+---
+title: "Homework 1"
+author: "Mengfei Xiao"
+date: "September 24th, 2018"
+output: 
+  html_document:
+    keep_md: true
+  
+---
+
+## Get some data
+```{r}
+# Get some data from fivethirtyeight.com
+# install.packages("fivethirtyeight")
+library(fivethirtyeight)
+data(package = "fivethirtyeight")
+```
+
+## Choose a data set
+The data set I am interested in is "bad_drivers". This data set mainly describes the raw data behind the story "Dear Mona, Which State Has The Worst Drivers?". For more infromation, please visit [fivethirtyeight](https://fivethirtyeight.com/features/which-state-has-the-worst-drivers/)
+
+
+## Show the data
+```{r echo=FALSE,warning=FALSE,message=FALSE}
+# install.packages("DT")
+# install.packages("knitr")
+library(DT)
+library(knitr)
+summary(bad_drivers)
+datatable(bad_drivers)
+df <- bad_drivers[1:10,c(1:5)]
+colnames(df) <- c("states", "drivers", "speeding", "alchol", "not distracted")
+kable(df)
+```
+
+## Add some Latex formulas
+We can assume that there is a linear relationship between drivers and speeding.
+$$num_drivers = \alpha*speeding + 4.5*\beta$$
+
+
+## Add a plot
+```{r}
+plot(drivers~speeding, df, main="drivers vs speeding")
+```
+
+## Add a picture
+![bad drivers cause to accident](bad_drivers.jpg)
+
+
+## Add footnote
+A footnote [^1]
+
+[^1]: Here is the footnote.
+
+
+## Add block quote
+> Here is the block quote.
+
