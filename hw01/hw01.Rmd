@@ -49,6 +49,7 @@ plot(drivers~speeding, df, main="drivers vs speeding")
 ![bad drivers cause to accident](bad_drivers.jpg)
 
 
+
 ## Add footnote and block quote
 > The driver is the most important factor in keeping driving from being a ¡°cinch.¡± Automotive engineering may make the car easier to drive. Highway engineering and traffic engineering may make the highways and streets safer to use. Safety devices and clever inventions may help lessen the hazards in unfavorable weather conditions. But, in spite of all such improvements, first-rate driving will always demand that the driver act in accordance with sportsmanlike attitudes. [^1]
 
