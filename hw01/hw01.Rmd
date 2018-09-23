@@ -33,6 +33,7 @@ colnames(df) <- c("states", "drivers", "speeding", "alchol", "not distracted")
 kable(df)
 ```
 
+
 ## Add some Latex formulas
 We can assume that there is a linear relationship between drivers and speeding.
 $$num_drivers = \alpha*speeding + 4.5*\beta$$
@@ -43,16 +44,12 @@ $$num_drivers = \alpha*speeding + 4.5*\beta$$
 plot(drivers~speeding, df, main="drivers vs speeding")
 ```
 
+
 ## Add a picture
 ![bad drivers cause to accident](bad_drivers.jpg)
 
 
-## Add footnote
-A footnote [^1]
+## Add footnote and block quote
+> The driver is the most important factor in keeping driving from being a ¡°cinch.¡± Automotive engineering may make the car easier to drive. Highway engineering and traffic engineering may make the highways and streets safer to use. Safety devices and clever inventions may help lessen the hazards in unfavorable weather conditions. But, in spite of all such improvements, first-rate driving will always demand that the driver act in accordance with sportsmanlike attitudes. [^1]
 
 [^1]: Here is the footnote.
-
-
-## Add block quote
-> Here is the block quote.
-
