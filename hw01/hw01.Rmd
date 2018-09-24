@@ -16,8 +16,16 @@ library(fivethirtyeight)
 data(package = "fivethirtyeight")
 ```
 
+
 ## Choose a data set
 The data set I am interested in is "bad_drivers". This data set mainly describes the raw data behind the story "Dear Mona, Which State Has The Worst Drivers?". For more infromation, please visit [fivethirtyeight](https://fivethirtyeight.com/features/which-state-has-the-worst-drivers/)
+
+```{r}
+name <- c("states", "num_drivers", "speeding", "alcohol", "not distracted")
+description <- c("Name of State", "Number of drivers per billion miles", "Percentage of drivers who were speeding", "Percentage of drivers who were alcohol-impaired", "Percentage of drivers who were not distracted")
+df <- data.frame(name, description)
+df
+```
 
 
 ## Show the data
@@ -36,7 +44,7 @@ kable(df)
 
 ## Add some Latex formulas
 We can assume that there is a linear relationship between drivers and speeding.
-$$num_drivers = \alpha*speeding + 4.5*\beta$$
+$$drivers_i = \alpha*speeding + 4.5*(1-\beta)$$
 
 
 ## Add a plot
@@ -47,6 +55,7 @@ plot(drivers~speeding, df, main="drivers vs speeding")
 
 ## Add a picture
 ![bad drivers cause to accident](bad_drivers.jpg)
+
 
 
 
