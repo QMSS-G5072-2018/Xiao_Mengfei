@@ -1,0 +1,136 @@
+---
+title: "QMSS G5072 Homework 2"
+author: "Mengfei Xiao"
+date: "October 1st, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(knitr)
+opts_chunk$set(fig.path="images/")
+```
+
+
+## Choose a Data Set
+The data we want to use as following: [U.S. Chronic Disease Indicators (CDI)](https://data.cdc.gov/Chronic-Disease-Indicators/U-S-Chronic-Disease-Indicators-CDI-/g4ie-h725).
+
+```{r echo = FALSE, results = 'hide', warning = FALSE, message = FALSE}
+# Load the data set
+library(readr)
+dataset <- read_csv("U.S._Chronic_Disease_Indicators_CDI.csv")
+head(dataset)
+```
+
+
+## Selection of Data and Tidying
+My idea to solve this question: There are 34 columns in the original excel, but according to the requirements of the question, we only need to keep the columns related to the analysis, so we choose the following columns, and filter the data. We only keep the data related to ***Bing Drinking*** and ***Poverty***.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+# Delete the columns we don't need
+dataset_selected <- dataset[,which(names(dataset) %in% c("LocationDesc",
+                                                         "LocationAbbr",
+                                                         "YearEnd",
+                                                         "Question",
+                                                         "DataValueType",
+                                                         "DataValue",
+                                                         "StratificationCategory1",
+                                                         "Stratification1"))]
+```
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+# Delete the rows we don't need
+dataset_selected_row <- dataset_selected[(dataset_selected$Question %in% 
+                                        c("Binge drinking prevalence among adults aged >= 18 years", 
+                                        "Poverty")) & 
+                                        (dataset_selected$DataValueType == "Crude Prevalence"),]
+
+dataset_selected_row <- dataset_selected_row[(dataset_selected_row$Question == "Binge drinking prevalence among adults aged >= 18 years" & 
+                                    dataset_selected_row$StratificationCategory1 %in% 
+                                    c("Overall", "Gender")) | 
+                                    (dataset_selected_row$Question == "Poverty" & 
+                                    dataset_selected_row$StratificationCategory1 == "Overall"),]
+```
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+# Format the dataset
+library(tidyr)
+
+# Combine two columns
+dataset_selected_row$Type <- paste(dataset_selected_row$Question, dataset_selected_row$Stratification1, sep = "-")
+dataset_selected_row <- dataset_selected_row[,which(names(dataset_selected_row) %in% 
+                                                      c("LocationDesc", 
+                                                        "LocationAbbr",
+                                                        "YearEnd",
+                                                        "Type",
+                                                        "DataValue"))]
+dataset_reshape <- spread(dataset_selected_row, key = "Type", value = "DataValue")
+```
+
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+# Rename the dataset
+names(dataset_reshape) <- c("year","stateabb", "state", "binge_female", 
+                            "binge_male", "binge_all", "poverty")
+
+# Output the dataset
+write.csv(dataset_reshape, "binge_clean.csv", row.names = FALSE)
+```
+
+
+## Data Transformation
+##### Question 5: Produce a table that shows the overall, female, and male binge drinking prevalences across U.S. States in the most recent year of data for the Top 10 binge drinking states. Use the relevant dplyr commands to select the right variables, sort the data and filter the data frame.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+library(dplyr)
+dataset_2016 <- filter(dataset_reshape, year == 2016)
+male_top10 <- select(arrange(dataset_2016, desc(binge_male)), 
+                     "year", "state", "binge_male")[1:10,]
+female_top10 <- select(arrange(dataset_2016, desc(binge_female)), 
+                       "state", "binge_female")[1:10,]
+overall_top10 <- select(arrange(dataset_2016, desc(binge_all)), 
+                        "state", "binge_all")[1:10,]
+result_top10 <- data.frame(Male = male_top10,
+                           Female = female_top10,
+                           Overall = overall_top10)
+names(result_top10) <- c("year", "state", "Male", "state", "Female", 
+                         "state", "Overall" )
+```
+
+```{r table 1, echo = FALSE, warning = FALSE, message = FALSE}
+print(result_top10)
+```
+
+
+##### Question 6: Make a simple scatter plot showing the correlation between the overall poverty prevalence in a state and the prevalence of binge drinking in the overall population. Add a loess smoothed fit curve to indicate the pattern. Comment briefly.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+library(ggplot2)
+ggplot(data = dataset_reshape[(!is.na(dataset_reshape$binge_all)) & 
+                              (!is.na(dataset_reshape$poverty)),], 
+                              aes(x = binge_all, y = poverty, color = year)) + 
+                              geom_point() + geom_smooth(method = "loess", 
+                                                         formula = y~x) + 
+                              labs(title = "The relationship between binge_all & poverty")
+```
+
+Comment Briefly: According to the scatter plot, it can be seen that there is a non-linear relationship between binge_all and poverty(as the blue curve shows). Also, there is a peak between 10 and 15, and I suppose that the peak value corresponding to the value of x-axis is 13(approximate). When binge_all is less than 13, binge_all is **proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the increase in the percentage of poverty of the state. When binge_all is between 13 and 17.5, binge_all is **inversely proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the decrease in the percentage of poverty of the state. Later, the curve starts to become flat between 17.5 and 22.5, almost parallel to the x-axis, which means that there is no correlation between binge_all and poverty. And then, when binge_all is larger than 22.5, the curve is gradually increasing, the two variables are **proportional** again.
+
+
+
+
+##### Question 7: Calculate the average annual growth rates (in percent) of overall binge drinking across states for the years the data is available. Provide a table of the 5 states with the largest increases and the 5 states with the largest decreases in binge drinking prevalence over the time period.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+dataset_binge_overall <- dataset_reshape[!is.na(dataset_reshape$binge_all), 
+                                         c("year", "state", "binge_all")]
+data_states <- arrange(group_by(dataset_binge_overall, state), year)
+growth_rate <- summarise(data_states, growth_rate = 
+                        (last(binge_all)-first(binge_all))*100/(5*first(binge_all)))
+growth_top5 <- arrange(growth_rate, desc(growth_rate))[1:5,]
+desc_top5 <- arrange(growth_rate, growth_rate)[1:5,]
+```
+
+```{r table 2, echo = FALSE, warning = FALSE, message = FALSE}
+print(growth_top5)
+```
+
+```{r table 3, echo = FALSE, warning = FALSE, message = FALSE}
+print(desc_top5)
+```
