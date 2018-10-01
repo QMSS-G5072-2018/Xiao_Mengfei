@@ -82,17 +82,10 @@ write.csv(dataset_reshape, "binge_clean.csv", row.names = FALSE)
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 library(dplyr)
 dataset_2016 <- filter(dataset_reshape, year == 2016)
-male_top10 <- select(arrange(dataset_2016, desc(binge_male)), 
-                     "year", "state", "binge_male")[1:10,]
-female_top10 <- select(arrange(dataset_2016, desc(binge_female)), 
-                       "state", "binge_female")[1:10,]
 overall_top10 <- select(arrange(dataset_2016, desc(binge_all)), 
-                        "state", "binge_all")[1:10,]
-result_top10 <- data.frame(Male = male_top10,
-                           Female = female_top10,
-                           Overall = overall_top10)
-names(result_top10) <- c("year", "state", "Male", "state", "Female", 
-                         "state", "Overall" )
+                        "year", "state", "stateabb", "binge_all", "binge_female", "binge_male")[1:10,]
+result_top10 <- data.frame(Overall = overall_top10)
+names(result_top10) <- c("year", "state", "stateabb", "Overall", "Female", "Male")
 ```
 
 ```{r table 1, echo = FALSE, warning = FALSE, message = FALSE}

@@ -140,28 +140,17 @@ $(document).ready(function () {
 <h2>Data Transformation</h2>
 <div id="question-5-produce-a-table-that-shows-the-overall-female-and-male-binge-drinking-prevalences-across-u.s.-states-in-the-most-recent-year-of-data-for-the-top-10-binge-drinking-states.-use-the-relevant-dplyr-commands-to-select-the-right-variables-sort-the-data-and-filter-the-data-frame." class="section level5">
 <h5>Question 5: Produce a table that shows the overall, female, and male binge drinking prevalences across U.S. States in the most recent year of data for the Top 10 binge drinking states. Use the relevant dplyr commands to select the right variables, sort the data and filter the data frame.</h5>
-<pre><code>##    year                state Male                state Female
-## 1  2016         North Dakota 32.1 District of Columbia   21.3
-## 2  2016 District of Columbia 30.5            Wisconsin   19.5
-## 3  2016                 Guam 29.8         North Dakota   17.2
-## 4  2016            Wisconsin 29.7            Minnesota   16.2
-## 5  2016             Nebraska 27.2                 Iowa   15.4
-## 6  2016                 Iowa 27.1               Alaska   15.1
-## 7  2016            Minnesota 26.5             Illinois   14.5
-## 8  2016             Illinois 25.6             Michigan   14.4
-## 9  2016         Pennsylvania 25.3         South Dakota   14.3
-## 10 2016              Montana 24.9             Colorado   13.9
-##                   state Overall
-## 1  District of Columbia    25.6
-## 2          North Dakota    24.8
-## 3             Wisconsin    24.6
-## 4             Minnesota    21.3
-## 5                  Iowa    21.2
-## 6                  Guam    20.7
-## 7              Nebraska    20.0
-## 8              Illinois    19.9
-## 9          Pennsylvania    19.4
-## 10         South Dakota    19.3</code></pre>
+<pre><code>##    year                state stateabb Overall Female Male
+## 1  2016 District of Columbia       DC    25.6   21.3 30.5
+## 2  2016         North Dakota       ND    24.8   17.2 32.1
+## 3  2016            Wisconsin       WI    24.6   19.5 29.7
+## 4  2016            Minnesota       MN    21.3   16.2 26.5
+## 5  2016                 Iowa       IA    21.2   15.4 27.1
+## 6  2016                 Guam       GU    20.7   11.2 29.8
+## 7  2016             Nebraska       NE    20.0   13.1 27.2
+## 8  2016             Illinois       IL    19.9   14.5 25.6
+## 9  2016         Pennsylvania       PA    19.4   13.8 25.3
+## 10 2016         South Dakota       SD    19.3   14.3 24.3</code></pre>
 </div>
 <div id="question-6-make-a-simple-scatter-plot-showing-the-correlation-between-the-overall-poverty-prevalence-in-a-state-and-the-prevalence-of-binge-drinking-in-the-overall-population.-add-a-loess-smoothed-fit-curve-to-indicate-the-pattern.-comment-briefly." class="section level5">
 <h5>Question 6: Make a simple scatter plot showing the correlation between the overall poverty prevalence in a state and the prevalence of binge drinking in the overall population. Add a loess smoothed fit curve to indicate the pattern. Comment briefly.</h5>
