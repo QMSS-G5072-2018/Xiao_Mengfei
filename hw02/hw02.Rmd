@@ -78,17 +78,17 @@ write.csv(dataset_reshape, "binge_clean.csv", row.names = FALSE)
 
 
 ## Data Transformation
-##### Question 5: Produce a table that shows the overall, female, and male binge drinking prevalences across U.S. States in the most recent year of data for the Top 10 binge drinking states. Use the relevant dplyr commands to select the right variables, sort the data and filter the data frame.
+##### Question 5: Produce a table that shows the overall, female, and male binge drinking prevalences across U.S. States in the most recent year of data for the Top 10 binge drinking states.
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 library(dplyr)
 dataset_2016 <- filter(dataset_reshape, year == 2016)
 overall_top10 <- select(arrange(dataset_2016, desc(binge_all)), 
                         "year", "state", "stateabb", "binge_all", "binge_female", "binge_male")[1:10,]
-result_top10 <- data.frame(Overall = overall_top10)
-names(result_top10) <- c("year", "state", "stateabb", "Overall", "Female", "Male")
+result_top10 <- data.frame(binge_all = overall_top10)
+names(result_top10) <- c("year", "state", "stateabb", "binge_all", "binge_female", "binge_male")
 ```
 
-```{r table 1, echo = FALSE, warning = FALSE, message = FALSE}
+```{r table, echo = FALSE, warning = FALSE, message = FALSE}
 print(result_top10)
 ```
 
@@ -104,12 +104,12 @@ ggplot(data = dataset_reshape[(!is.na(dataset_reshape$binge_all)) &
                               labs(title = "The relationship between binge_all & poverty")
 ```
 
-Comment Briefly: According to the scatter plot, it can be seen that there is a non-linear relationship between binge_all and poverty(as the blue curve shows). Also, there is a peak between 10 and 15, and I suppose that the peak value corresponding to the value of x-axis is 13(approximate). When binge_all is less than 13, binge_all is **proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the increase in the percentage of poverty of the state. When binge_all is between 13 and 17.5, binge_all is **inversely proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the decrease in the percentage of poverty of the state. Later, the curve starts to become flat between 17.5 and 22.5, almost parallel to the x-axis, which means that there is no correlation between binge_all and poverty. And then, when binge_all is larger than 22.5, the curve is gradually increasing, the two variables are **proportional** again.
+##### Comment Briefly: According to the scatter plot, it can be seen that there is a non-linear relationship between binge_all and poverty(as the blue curve shows). Also, there is a peak between 10 and 15, and I suppose that the peak value corresponding to the value of x-axis is 12.5(approximate). When binge_all is less than 12.5, binge_all is **proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the increase in the percentage of poverty of the state. When binge_all is between 12.5 and 17.5, binge_all is **inversely proportional** to poverty, which means that the increase in the percentage of drinking prevalence among all adults, the decrease in the percentage of poverty of the state. Later, the curve starts to become flat between 17.5 and 22.5, almost parallel to the x-axis, which means that there is no correlation between binge_all and poverty. And then, when binge_all is larger than 22.5, the curve is gradually increasing, the two variables are **proportional** again.
 
 
 
 
-##### Question 7: Calculate the average annual growth rates (in percent) of overall binge drinking across states for the years the data is available. Provide a table of the 5 states with the largest increases and the 5 states with the largest decreases in binge drinking prevalence over the time period.
+##### Question 7: Calculate the average annual growth rates of overall binge drinking across states for the years the data is available. Provide a table of the 5 states with the largest increases and the 5 states with the largest decreases in binge drinking prevalence over the time period.
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 dataset_binge_overall <- dataset_reshape[!is.na(dataset_reshape$binge_all), 
                                          c("year", "state", "binge_all")]
@@ -120,10 +120,12 @@ growth_top5 <- arrange(growth_rate, desc(growth_rate))[1:5,]
 desc_top5 <- arrange(growth_rate, growth_rate)[1:5,]
 ```
 
+##### **Table of 5 states with the largest increases**
 ```{r table 2, echo = FALSE, warning = FALSE, message = FALSE}
 print(growth_top5)
 ```
 
+##### **Table of 5 states with the largest decreases**
 ```{r table 3, echo = FALSE, warning = FALSE, message = FALSE}
 print(desc_top5)
 ```
