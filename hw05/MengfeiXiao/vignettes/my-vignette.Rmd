@@ -1,0 +1,53 @@
+---
+title: "MengfeiXiao_Vignette"
+author: "Mengfei Xiao"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Write a Beautiful Song
+
+Using this function can create a beautiful song of lyrics.
+You can change the factors to get different lyrics.
+
+
+### Introduction to Parameters
+n: a number
+liquid: a type of beer
+vessel: a type of vessel
+container: a type of container
+
+
+### Example of Beer Song
+```{r}
+Beer_Song <- function(n, liquid, vessel, container){
+  for(i in n:0){
+    if(i>1){
+      cat("\n ", i, " ", vessel, " of ", liquid, " on the ", container, ", ",
+          i, " ", vessel ," of ", liquid, ". Take one down, pass it around, ",
+          (i-1), " ", vessel, " of ", liquid, " on the ", container, "...", sep="")
+    }else if(i==1){
+      cat("\n ", i, " ", vessel, " of ", liquid, " on the ", container, ", ",
+          i, " ", vessel, " of ", liquid, ". Take one down, pass it around, no more ",
+          vessel, " of ", liquid, " on the ", container, "...", sep = "")
+    }else{
+      cat("\n No more ", vessel, " of ", liquid, " on the ", container,
+          ", no more ", vessel, " of ", liquid, ".",
+          "\n Go to the store and buy some more, ", n, " ", vessel, " of ", liquid,
+          " on the ", container, "...", sep = "")
+    }
+  }
+}
+Beer_Song(n = 10, liquid = "beer", vessel = "bottles", container = "shelf")
+```

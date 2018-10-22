@@ -1,0 +1,36 @@
+---
+title: "MengfeiXiao_Vignette"
+author: "Mengfei Xiao"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Write a Beautiful Song
+
+Using this function can creates beautiful lyrics of song.
+You can change the factors to get different lyrics.
+
+
+### Introduction to Parameters
+n: a number
+liquid: a type of beer
+vessel: a type of vessel
+container: a type of container
+
+
+### Example of Beer Song
+```{r}
+Beer_Song(n = 10, liquid = "beer", vessel = "bottles", container = "shelf")
+```
+

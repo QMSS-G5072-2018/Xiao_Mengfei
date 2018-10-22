@@ -1,0 +1,6 @@
+
+graphs <- function(x,y) {
+  plot(x=x,y=seq(1,length(x)),type="l",col="red",cex=3,pch=2)
+  lines(x=y,y=seq(1,length(y)),col="blue",cex=3,pch=4)
+  legend("topleft",c("x","y"),lty=c(1,1),col=c("red","blue"))
+}

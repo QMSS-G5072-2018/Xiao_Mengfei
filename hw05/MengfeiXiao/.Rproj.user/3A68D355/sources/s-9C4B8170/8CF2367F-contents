@@ -1,0 +1,17 @@
+
+# Define and export at least one new function
+# Loop from 99 to 1
+#' @export
+for(i in 99:0){
+  if(i>1){
+    cat("\n", i, "bottles of beer on the wall,", i, "bottles of beer. Take one down, pass it around,",
+        (i-1), "bottles of beer on the wall...", sep = " ")
+  }else if(i==1){
+    cat("\n", i, "bottle of beer on the wall,", i, "bottle of beer. Take one down, pass it around,",
+        "no more bottles of beer on the wall...", sep = " ")
+  }else{
+    cat("\n No more bottles of beer on the wall, no more bottles of beer.",
+        "\n Go to the store and buy some more, 99 bottles of beer on the wall...",
+        sep = " ")
+  }
+}

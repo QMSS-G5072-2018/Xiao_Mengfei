@@ -1,0 +1,10 @@
+
+
+rm(list=ls())
+library(devtools)
+library(roxygen2)
+library(testthat)
+library(MengfeiXiao)
+devtools::use_readme_rmd()
+
+devtools::document()

@@ -1,0 +1,31 @@
+#' Write a Beautiful Song
+#'
+#' Using this function can write a song of beautiful lyrics.
+#' You can change the factors to get different lyrics.
+#'
+#' @param n a number
+#' @param liquid a type of beer
+#' @param vessel a type of vessel
+#' @param container a type of container
+#' @return Beer_Song
+#' @examples
+#' Beer_Song(n = 10, liquid = "beer", vessel = "bottles", container = "shelf")
+#' @export
+Beer_Song <- function(n, liquid, vessel, container){
+  for(i in n:0){
+    if(i>1){
+      cat("\n ", i, " ", vessel, " of ", liquid, " on the ", container, ", ",
+          i, " ", vessel ," of ", liquid, ". Take one down, pass it around, ",
+          (i-1), " ", vessel, " of ", liquid, " on the ", container, "...", sep="")
+    }else if(i==1){
+      cat("\n ", i, " ", vessel, " of ", liquid, " on the ", container, ", ",
+          i, " ", vessel, " of ", liquid, ". Take one down, pass it around, no more ",
+          vessel, " of ", liquid, " on the ", container, "...", sep = "")
+    }else{
+      cat("\n No more ", vessel, " of ", liquid, " on the ", container,
+          ", no more ", vessel, " of ", liquid, ".",
+          "\n Go to the store and buy some more, ", n, " ", vessel, " of ", liquid,
+          " on the ", container, "...", sep = "")
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# Define and export at least one new function
+
+# This function can create a beautiful graph.
+# You can change the value of x and y, color, legend and other factors to get different graphs.
+
+#' @param x a number.
+#' @param y a number.
+#' @return a graph.
+#' @examples
+#' x<-seq(1,10,1)
+#` y<-seq(2,20,2)
+#` graph (x,y)
+#' @export
+graphs <- function(x,y){
+  plot(x = x, y = seq(1, length(x)), type = "l", col = "red", cex = 3, pch = 2)
+  lines(x = y, y = seq(1,length(y)), col = "blue", cex = 3, pch = 4)
+  legend("topleft", c("x","y"), lty = c(1,1), col = c("red", "blue"))
+}
+graphs
+
+
+#' @param x a number.
+#' @param y a number.
+#' @return a graph.
+#' @examples
+#' x<-seq(1,10,1)
+#` y<-seq(2,20,2)
+#` graph (x,y)
+#' @export
+# Loop from 99 to 1
+for(i in 99:0){
+  if(i>1){
+    cat("\n", i, "bottles of beer on the wall,", i, "bottles of beer. Take one down, pass it around,",
+        (i-1), "bottles of beer on the wall...", sep = " ")
+  }else if(i==1){
+    cat("\n", i, "bottle of beer on the wall,", i, "bottle of beer. Take one down, pass it around,",
+        "no more bottles of beer on the wall...", sep = " ")
+  }else{
+    cat("\n No more bottles of beer on the wall, no more bottles of beer.",
+        "\n Go to the store and buy some more, 99 bottles of beer on the wall...",
+        sep = " ")
+  }
+}
