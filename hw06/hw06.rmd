@@ -1,0 +1,193 @@
+---
+title: "QMSS G5072 Homework 4"
+author: "Mengfei Xiao"
+date: "October 29th, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+```{r setup, echo = FALSE, warning = FALSE, message = FALSE}
+library(knitr)
+opts_chunk$set(fig.path="images/")
+```
+
+
+## 1. Words in Ulysses
+```{r echo = FALSE, results = 'hide', warning = FALSE, message = FALSE}
+library(gutenbergr)
+# Let's get the book "Ulysses" by James Joyce
+gutenberg_works(author == "Joyce, James")
+book <- gutenberg_download(4300)
+book
+
+library(tidytext)
+library(tidyverse)
+# Let's get the words in the text
+words <- book %>%
+  unnest_tokens(word, text) %>%
+  select(word)
+words
+```
+
+### a) Words with z
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_z = words %>%
+  filter(str_detect(word, pattern = "z")) %>%    
+  count(word, sort = TRUE) 
+```
+
+
+##### **Number of words contain z's**
+**Conclusion:** Among the z-words, there are 293 words containing one z, 46 words containing two z's and 1 word containing three z's.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_z = words_z %>%
+  mutate(times_z = str_count(word, pattern = "z"))
+words_z %>%
+  group_by(times_z) %>% 
+  summarise(table(times_z)) %>%
+  data.frame()
+```
+
+
+##### **The furthest distance between two z's in the word**
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_z_dist = words_z %>%
+  mutate(times_z = str_count(word,pattern = "z")) %>%
+  filter(times_z > 1)
+words_z_dist$word[words_z_dist$times_z==max(words_z_dist$times_z)]
+```
+
+
+
+### b) Vowels
+##### **Words start and end with a vowel**
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+vowel = words %>%
+  filter(word!="[aeiouAEIOU]") %>%
+  filter(str_detect(word, pattern = "^[aeiouAEIOU].*[aeiouAEIOU]$"))  %>%
+  count(word, sort = TRUE) 
+length(vowel$word)
+```
+
+
+##### **Words start with two or more vowels**
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+vowel_1 = words %>%
+  filter(str_detect(word, pattern = "^[aeiouAEIOU]{2,}")) %>%
+  count(word, sort = TRUE)
+length(vowel_1$word)
+```
+
+
+##### **Words with most consecutive vowels**
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_conse <- unique(words$word)
+words_conse[which.max(nchar(str_match(words_conse, "[aeiouAEIOU]{1,}" )))]
+```
+
+
+
+### c) English spelling
+**My idea to solve this question:** I will use two methods to analyze this question. Firstly, I divide all the words into the categories of "holding the rule" and "not holding the rule". I suppose that some special words also belong to "not holding the rule", so the sum of the proportion of "holding the rule" and "not holding the rule" equals to 1. Therefore, there are 78.64% of words holding the rule while 21.36% of words not holding the rule.
+
+##### **Method 1: The sum of proportion equals to 1**
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_spell = words %>%
+  count(word, sort = TRUE) %>%                      
+  filter(str_detect(word,pattern = "ie|ei")) %>%
+  mutate(yes = ifelse(str_detect(word, pattern = "cei|[^c]ie"), "holding", "not holding")) 
+table(words_spell$yes)
+prop.table(table(words_spell$yes))
+```
+
+
+##### **Method 2: The proportion of words when the rule does not hold**
+Secondly, since there exists some special words like "vieille", I suppose that they don't belong to "not holding the rule", so I will exclude these special words. Therefore, the sum of the proportion of "holding the rule" and "not holding the rule" does not equal to 1. According to my selection, there are 201 words not holding the rule, and the proportion is 19.78%.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+words_spell = words %>%
+  count(word, sort = TRUE) %>%                      
+  filter(str_detect(word,pattern = "ie|ei")) %>%
+  mutate(yes = ifelse(str_detect(word, pattern = "cie|[^c]ei"), 1, 0))
+no_holding_rule <- length(words_spell$yes[words_spell$yes==1]) / length(words_spell$yes)
+length(words_spell$yes[words_spell$yes==1])
+no_holding_rule
+```
+
+
+
+
+## 2. MTA Delays
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+tweets = readRDS("C:/Users/sweetybaby/Desktop/mta.RDS")
+```
+
+### a) Reduce the data
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+tweets_reduced = tweets %>%
+  filter(!(str_detect(is_retweet, pattern = "TRUE") | str_detect(text, pattern = "^@"))) %>%
+  select(c(text, created_at))
+head(tweets_reduced)
+```
+
+
+### b) Time of Delay
+**Briefly Comment:** According to the question, I just subset the "(Dd)elay", but remove all the "(Rr)esume|resuming" and "update|UPDATE" away. Since I see many words of "resuming", so I also remove it.
+```{r warning = FALSE, message = FALSE}
+tweets_reduced_delay = tweets_reduced %>%
+  filter(str_detect(text, pattern = "[Dd]elay")) %>%
+  filter(!str_detect(text, pattern = "[Rr]esum|[Uu][Pp][Dd][Aa][Tt][Ee]"))
+head(tweets_reduced_delay)
+```
+
+**What I find:** From the "column" perspective, morning is the time period with the minimum train delays, while mid-day is the time period with the maximum train delays, followed by night and evening. This phenomenon may be explained by that, these three time periods are the peak time for arranging trains. People will dine out, or just come home from work. As a result, increased human traffic has contributed to train delays. From the “row” perspective, Saturday is the weekend with the minimum train delays, while Monday is the weekday with the maximum train delays, followed by Tuesday. This phenomenon can be explained by that Monday is the first working day in a week.
+```{r echo = FALSE, warning = FALSE, message = FALSE}
+library(lubridate)
+tweets_reduced_delay = tweets_reduced_delay %>%
+  mutate(created_at = ymd_hms(created_at),
+         week = weekdays(created_at),
+         week = factor(week,levels = c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")),
+         hour = hour(created_at),
+         time = cut(hour, breaks = c(0,6,10,15,18,22,23),
+                    include.lowest = TRUE, right = FALSE,
+                    labels = c("night","morning","mid-day","afternoon","evening","night")),
+         time = factor(time,levels = c("morning","mid-day","afternoon","evening","night")))
+table(tweets_reduced_delay$week, tweets_reduced_delay$time)
+```
+
+
+### c) Type of Delay
+**My idead to solve this question:** I select the reasons for train delays as follows: signal, mechanical, technical and activity. Among them, I combine “medical”, “sick”, “injured” and “passenger” into “medical” category , and combine “track” and “switch” into “technical” category.
+```{r warning = FALSE, message = FALSE}
+tweets_reduced_delay_type = tweets_reduced_delay %>%
+  mutate(Signal = ifelse(str_detect(text, pattern = "signal"),1,0),
+         Medical = ifelse(str_detect(text, pattern = "medical|sick|injured|passenger"),1,0), 
+         Mechanical = ifelse(str_detect(text, pattern = "mechanical"),1,0),        
+         Technical = ifelse(str_detect(text, pattern = "track|switch"),1,0),
+         Activity = ifelse(str_detect(text, pattern = "activity"),1,0))
+library(reshape2)
+type = melt(tweets_reduced_delay_type, measure.vars = c("Signal", "Medical", "Mechanical", 
+                                                        "Technical", "Activity"))
+type= type %>%
+  filter(value==1)
+table(type$variable)
+barplot(table(type$variable))
+```
+
+### d) Which train lines affected?
+```{r}
+library(purrr)
+delay_lines <- str_extract_all(tweets_reduced_delay$text, pattern = "( |^)[1-7|A-G|J|L-N|Q-S|W-Z](,| )")
+extract_lines <- str_extract_all(delay_lines, pattern = "[1-7|A-G|J|L-N|Q-S|W-Z]") %>%
+  map(~unique(.))
+days <- str_replace(as.list(tweets_reduced_delay$week), pattern = "Saturday|Sunday", "Weekends")
+days <- str_replace(as.list(tweets_reduced_delay$week), pattern = "Monday|Tuesday|Wednesday|Thursday|Friday", "Weekdays")
+delay_lines_new <- cbind(extract_lines, days)
+weekdays <- unlist(delay_lines_new[which(days == "Weekdays")])
+weekends <- unlist(delay_lines_new[which(days == "Weekends")])
+weekday_count <- data.frame(table(weekdays)) %>% arrange(desc(Freq))
+weekend_count <- data.frame(table(weekends)) %>% arrange(desc(Freq))
+weekend_count
+```
+
