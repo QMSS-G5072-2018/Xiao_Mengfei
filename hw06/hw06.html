@@ -172,8 +172,8 @@ $(document).ready(function () {
 ##     holding not holding 
 ##   0.7864173   0.2135827</code></pre>
 </div>
-<div id="method-2-the-proportion-of-words-when-the-rule-does-not-hold" class="section level5">
-<h5><strong>Method 2: The proportion of words when the rule does not hold</strong></h5>
+<div id="method-2-the-sum-of-proportion-does-not-equal-to-1" class="section level5">
+<h5><strong>Method 2: The sum of proportion does not equal to 1</strong></h5>
 <p>Secondly, since there exists some special words like “vieille”, I suppose that they don’t belong to “not holding the rule”, so I will exclude these special words. Therefore, the sum of the proportion of “holding the rule” and “not holding the rule” does not equal to 1. According to my selection, there are 201 words not holding the rule, and the proportion is 19.78%.</p>
 <pre><code>## [1] 201</code></pre>
 <pre><code>## [1] 0.1978346</code></pre>
@@ -184,6 +184,10 @@ $(document).ready(function () {
 <h2>2. MTA Delays</h2>
 <div id="a-reduce-the-data" class="section level3">
 <h3>a) Reduce the data</h3>
+<pre class="r"><code>tweets_reduced = tweets %&gt;%
+  filter(!(str_detect(is_retweet, pattern = &quot;TRUE&quot;) | str_detect(text, pattern = &quot;^@&quot;))) %&gt;%
+  select(c(text, created_at))
+head(tweets_reduced)</code></pre>
 <pre><code>## # A tibble: 6 x 2
 ##   text                                                 created_at         
 ##   &lt;chr&gt;                                                &lt;dttm&gt;             
@@ -196,7 +200,7 @@ $(document).ready(function () {
 </div>
 <div id="b-time-of-delay" class="section level3">
 <h3>b) Time of Delay</h3>
-<p><strong>Briefly Comment:</strong> According to the question, I just subset the “(Dd)elay”, but remove all the “(Rr)esume|resuming” and “update|UPDATE” away. Since I see many words of “resuming”, so I also remove it.</p>
+<p><strong>Briefly Comment:</strong> According to the question, I just subset the “(Dd)elay”, but remove all the “(Rr)esume|resuming” and “update|UPDATE” away. Since I see many words of “resuming”, so I also remove them.</p>
 <pre class="r"><code>tweets_reduced_delay = tweets_reduced %&gt;%
   filter(str_detect(text, pattern = &quot;[Dd]elay&quot;)) %&gt;%
   filter(!str_detect(text, pattern = &quot;[Rr]esum|[Uu][Pp][Dd][Aa][Tt][Ee]&quot;))
@@ -244,20 +248,48 @@ table(type$variable)</code></pre>
 </div>
 <div id="d-which-train-lines-affected" class="section level3">
 <h3>d) Which train lines affected?</h3>
-<pre class="r"><code>library(purrr)
-delay_lines &lt;- str_extract_all(tweets_reduced_delay$text, pattern = &quot;( |^)[1-7|A-G|J|L-N|Q-S|W-Z](,| )&quot;)
-extract_lines &lt;- str_extract_all(delay_lines, pattern = &quot;[1-7|A-G|J|L-N|Q-S|W-Z]&quot;) %&gt;%
-  map(~unique(.))
-days &lt;- str_replace(as.list(tweets_reduced_delay$week), pattern = &quot;Saturday|Sunday&quot;, &quot;Weekends&quot;)
-days &lt;- str_replace(as.list(tweets_reduced_delay$week), pattern = &quot;Monday|Tuesday|Wednesday|Thursday|Friday&quot;, &quot;Weekdays&quot;)
-delay_lines_new &lt;- cbind(extract_lines, days)
-weekdays &lt;- unlist(delay_lines_new[which(days == &quot;Weekdays&quot;)])
-weekends &lt;- unlist(delay_lines_new[which(days == &quot;Weekends&quot;)])
-weekday_count &lt;- data.frame(table(weekdays)) %&gt;% arrange(desc(Freq))
-weekend_count &lt;- data.frame(table(weekends)) %&gt;% arrange(desc(Freq))
-weekend_count</code></pre>
-<pre><code>## [1] Freq
-## &lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<pre class="r"><code>tweets_reduced_delay &lt;- tweets_reduced_delay %&gt;%
+  mutate(trains = str_extract_all(tweets_reduced_delay$text, pattern = &quot;\\d trains|\\b\\d,|\\d and|[A-Z] and|[A-Z] trains&quot;))
+tweets_reduced_delay$trains1 &lt;- str_extract_all(tweets_reduced_delay$trains, &quot;(\\w )|( \\w )&quot;)
+trains_record &lt;- data.frame(&quot;week&quot; = c(), &quot;train_no&quot; = c())
+tweets_reduced_delay$weekends &lt;- ifelse((tweets_reduced_delay$week %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;)), &quot;Weekends&quot;, &quot;Weekdays&quot;)
+for (i in 1:nrow(tweets_reduced_delay)) {
+  if(length(tweets_reduced_delay$trains1[i][[1]]) &gt; 0){
+    for(j in 1:length(tweets_reduced_delay$trains1[i][[1]])){
+      trains_record &lt;- rbind(trains_record, data.frame(&quot;week&quot; = tweets_reduced_delay$weekends[i],
+                                                       &quot;train_no&quot; = tweets_reduced_delay$trains1[i][[1]][j]))
+    }
+  }
+}
+trains_record$train_no &lt;- substr(trains_record$train_no, 1, 2)
+trains_record &lt;- trains_record[trains_record$train_no != &quot;0 &quot;,]
+trains_record &lt;- trains_record[trains_record$train_no != &quot;8 &quot;,]
+table(trains_record$train_no, trains_record$week)</code></pre>
+<pre><code>##     
+##      Weekdays Weekends
+##   1       134       53
+##   2       355      104
+##   3       205       59
+##   4       232       75
+##   5       296       79
+##   6       170       51
+##   7       204       57
+##   A       249      104
+##   B       145        1
+##   C       188       48
+##   D       204       75
+##   E       208       56
+##   F       293       90
+##   G        71       20
+##   J       122       39
+##   L       125       62
+##   M       192       17
+##   N       184       65
+##   Q       175       61
+##   R       251       76
+##   S         2        5
+##   W       108        8
+##   Z         5        0</code></pre>
 </div>
 </div>
 

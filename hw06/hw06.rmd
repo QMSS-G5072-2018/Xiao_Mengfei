@@ -103,7 +103,7 @@ prop.table(table(words_spell$yes))
 ```
 
 
-##### **Method 2: The proportion of words when the rule does not hold**
+##### **Method 2: The sum of proportion does not equal to 1**
 Secondly, since there exists some special words like "vieille", I suppose that they don't belong to "not holding the rule", so I will exclude these special words. Therefore, the sum of the proportion of "holding the rule" and "not holding the rule" does not equal to 1. According to my selection, there are 201 words not holding the rule, and the proportion is 19.78%.
 ```{r echo = FALSE, warning = FALSE, message = FALSE}
 words_spell = words %>%
@@ -124,7 +124,7 @@ tweets = readRDS("C:/Users/sweetybaby/Desktop/mta.RDS")
 ```
 
 ### a) Reduce the data
-```{r echo = FALSE, warning = FALSE, message = FALSE}
+```{r warning = FALSE, message = FALSE}
 tweets_reduced = tweets %>%
   filter(!(str_detect(is_retweet, pattern = "TRUE") | str_detect(text, pattern = "^@"))) %>%
   select(c(text, created_at))
@@ -133,7 +133,7 @@ head(tweets_reduced)
 
 
 ### b) Time of Delay
-**Briefly Comment:** According to the question, I just subset the "(Dd)elay", but remove all the "(Rr)esume|resuming" and "update|UPDATE" away. Since I see many words of "resuming", so I also remove it.
+**Briefly Comment:** According to the question, I just subset the "(Dd)elay", but remove all the "(Rr)esume|resuming" and "update|UPDATE" away. Since I see many words of "resuming", so I also remove them.
 ```{r warning = FALSE, message = FALSE}
 tweets_reduced_delay = tweets_reduced %>%
   filter(str_detect(text, pattern = "[Dd]elay")) %>%
@@ -176,18 +176,23 @@ barplot(table(type$variable))
 ```
 
 ### d) Which train lines affected?
-```{r}
-library(purrr)
-delay_lines <- str_extract_all(tweets_reduced_delay$text, pattern = "( |^)[1-7|A-G|J|L-N|Q-S|W-Z](,| )")
-extract_lines <- str_extract_all(delay_lines, pattern = "[1-7|A-G|J|L-N|Q-S|W-Z]") %>%
-  map(~unique(.))
-days <- str_replace(as.list(tweets_reduced_delay$week), pattern = "Saturday|Sunday", "Weekends")
-days <- str_replace(as.list(tweets_reduced_delay$week), pattern = "Monday|Tuesday|Wednesday|Thursday|Friday", "Weekdays")
-delay_lines_new <- cbind(extract_lines, days)
-weekdays <- unlist(delay_lines_new[which(days == "Weekdays")])
-weekends <- unlist(delay_lines_new[which(days == "Weekends")])
-weekday_count <- data.frame(table(weekdays)) %>% arrange(desc(Freq))
-weekend_count <- data.frame(table(weekends)) %>% arrange(desc(Freq))
-weekend_count
+```{r warning = FALSE, message = FALSE}
+tweets_reduced_delay <- tweets_reduced_delay %>%
+  mutate(trains = str_extract_all(tweets_reduced_delay$text, pattern = "\\d trains|\\b\\d,|\\d and|[A-Z] and|[A-Z] trains"))
+tweets_reduced_delay$trains1 <- str_extract_all(tweets_reduced_delay$trains, "(\\w )|( \\w )")
+trains_record <- data.frame("week" = c(), "train_no" = c())
+tweets_reduced_delay$weekends <- ifelse((tweets_reduced_delay$week %in% c("Saturday","Sunday")), "Weekends", "Weekdays")
+for (i in 1:nrow(tweets_reduced_delay)) {
+  if(length(tweets_reduced_delay$trains1[i][[1]]) > 0){
+    for(j in 1:length(tweets_reduced_delay$trains1[i][[1]])){
+      trains_record <- rbind(trains_record, data.frame("week" = tweets_reduced_delay$weekends[i],
+                                                       "train_no" = tweets_reduced_delay$trains1[i][[1]][j]))
+    }
+  }
+}
+trains_record$train_no <- substr(trains_record$train_no, 1, 2)
+trains_record <- trains_record[trains_record$train_no != "0 ",]
+trains_record <- trains_record[trains_record$train_no != "8 ",]
+table(trains_record$train_no, trains_record$week)
 ```
 
