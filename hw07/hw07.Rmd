@@ -1,0 +1,84 @@
+---
+title: "QMSS G5072 Homework 7"
+author: "Mengfei Xiao"
+date: "November 8th, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+## Calling an API using "httr"
+```{r set up, echo = FALSE, warning = FALSE, message = FALSE}
+library(httr)
+library(stringr)
+library(dplyr)
+```
+
+### a) Define the base URL 
+```{r}
+endpoint <-"https://data.lacity.org/resource/7fvc-faax.csv"
+```
+
+
+### b) Send a simple GET request
+```{r}
+str_response <- GET(endpoint, max.level = 1)
+print(str_response)
+```
+
+
+### c) Get the content of the response
+```{r, message = FALSE}
+result_data <- content(str_response)
+dim(result_data)
+table(result_data$area_name)
+```
+
+
+### d) Get your access token
+**Conclusion:** The status of the server response is 200, which starts with 2xx meaning that it does not have any error, and the client's request is successfully received, understood, and accepted.
+```{r}
+server_response <- GET(endpoint, query = list("$limit" = "10000", 
+                                            "$$app_token" = Sys.getenv("LACRIME_APP_TOKEN")))
+server_response$status_code
+```
+
+
+### e) Limiting your query
+**Conclusion:** I filter the obeservations whose area_name is "Central"" and status is "double A".
+```{r}
+server_response_new <- GET(endpoint, query = list("$limit" = "10000", 
+                                                 "$$app_token" = Sys.getenv("LACRIME_APP_TOKEN"), 
+                                                 area_name = "Central", status = "AA"))
+server_response_new$status_code
+```
+
+
+### f) Locations
+```{r}
+googlekey <- "AIzaSyBzubRQN0_kf0nPc_qCzM7chlX5YOf3edA"
+latlng <- str_extract_all(result_data$location_1,"-?[0-9]+\\.[0-9]+") %>% 
+  unlist(.)
+latlng <- paste(latlng[seq(2, length(latlng), 2)], latlng[seq(1, length(latlng), 2)], sep = ",")
+URL <- str_c("https://maps.googleapis.com/maps/api/geocode/json?latlng=",latlng) %>% 
+  str_c(.,googlekey, sep = "&key=")
+back <- list()
+address <- list()
+for(i in c(1:50)){
+  back[[i]] <- GET(URL[i])
+  if(!back[[i]]$status==200){
+    print(str_c(i,"something goes awry"))
+  }
+  address[[i]] <- content(back[[i]])
+  Sys.sleep(0.1)
+}
+extract_format <- function(x){
+  x$results[[1]]$formatted_address
+}
+format_address <- lapply(address,extract_format)
+format_address
+```
+
+
+
