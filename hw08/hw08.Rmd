@@ -1,0 +1,131 @@
+---
+title: "QMSS G5072 Homework 8"
+author: "Mengfei Xiao"
+date: "November 19th, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+
+## Write a simple API client
+### 1. Choose an API
+#### a) Choose an API
+I choose to use the ProPublica Congress API: It can retrieve legislative data from the House of Representatives, the Senate and the Library of Congress. 
+
+
+#### b) Link to API documentation 
+API documention link: https://projects.propublica.org/api-docs/congress-api/
+
+
+#### c) Base URL of API
+Base URL: https://api.propublica.org/congress/v1/
+
+
+
+
+### 2. Authentication
+#### a) How API authenticates the user
+You can sign up on this website: https://www.propublica.org/datastore/api/propublica-congress-api to request an API key. After registering your name, email, organization and purpose to be a user, the website will autenticate the user.
+
+
+
+#### b) Apply for an API key
+Once registered successfully, the website will automatically send an API key for Congress API later to the user. You are required to provide more information on this website: https://www.propublica.org/datastore/api/propublica-congress-api
+
+
+
+
+### 3. Send a Simple GET request
+#### a) Execute a simple GET request
+```{r, warning = FALSE, message = FALSE}
+library(httr)
+library(plyr)
+library(dplyr)
+library(stringr)
+header <- add_headers("X-API-Key" = Sys.getenv("CONGRESS_TOKEN"))
+base_URL <- "https://api.propublica.org/congress/v1/80/senate/members.json"
+response <- GET(base_URL, header)
+```
+
+
+#### b) Check the status of the request
+```{r}
+http_status(response)
+```
+
+
+#### c) Check the type of the response
+```{r}
+http_type(response)
+```
+
+
+
+### 4. Parse the response and Create a dataset
+#### a) and b) 
+```{r}
+list_data <- content(response)
+result_data <- `[`(list_data, -c(1,2))
+members <- list()
+for(i in c(1:length(result_data$`results`[[1]]$members))){
+  members[[i]] <- unlist(result_data$`results`[[1]]$members[[i]]) %>% 
+    t(.) %>% 
+    data.frame(.)
+}
+result_df <- do.call(rbind.fill, members)
+result_df <- result_df[, c("id", "title", "first_name", "last_name", "gender", 
+                           "date_of_birth", "party", "state", "senate_class")]
+```
+
+
+#### c) Provide summary statistics of the data
+```{r}
+summary(result_df)
+saveRDS(result_df, file = "data.rds") # The "data.rds" is saved in my hw08 file #
+```
+
+
+
+### 5. API Client
+#### a) Full function to access the API functionality
+```{r}
+getrepsentative <- function(congress = "house", number = 102, key = Sys.getenv("CONGRESS_TOKEN")){
+  list_data <- list()
+  result_data <- list()
+  header <- add_headers("X-API-Key" = key)
+  url <- str_c("https://api.propublica.org/congress/v1", number, congress, "members.json", sep = "/")
+  resp <- GET(url, header)
+  if(!http_status(resp)$`category`=="Success"){
+    print(sprintf("%s",http_status(resp)$`message`))
+  }
+  if(congress=="senate" & (number<80 | number>115)){
+    print(sprintf("%g out of bound script", number))
+  }
+  if(congress=="house" & (number<102 | number>115)){
+    print(sprintf("%g out of bound script", number))
+  }
+  if(!congress %in% c("senate", "house")){
+    print("Wrong value in congress")
+  }
+  list_data <- content(resp)
+  result_data <- `[`(list_data, -c(1,2))
+  membs<-list()
+  for(i in c(1:length(result_data$`results`[[1]]$members))){
+    membs[[i]] <- unlist(result_data$`results`[[1]]$members[[i]]) %>% 
+      t(.) %>% 
+      data.frame(.)
+  }
+  result_df <- do.call(rbind.fill, membs)
+  return(result_df)
+}
+```
+
+
+#### b) Save the output
+```{r}
+output <- getrepsentative()
+saveRDS(output, file = "api_client_output.RDS") # The "api_client_output.RDS" is saved in my hw08 file #
+```
+
