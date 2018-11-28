@@ -1,0 +1,134 @@
+---
+title: "QMSS G5072 Homework 9"
+author: "Mengfei Xiao"
+date: "November 26th, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+
+## Web Scraping with Selectors
+### 1. Get HTML
+```{r warning = FALSE, message = FALSE}
+library(xml2)
+library(dplyr)
+library(stringr)
+library(rvest)
+URL <- "https://en.wikipedia.org/wiki/Mitch_McConnell"
+urlsrc <- read_html(URL, encoding = "UTF-8")
+```
+
+
+
+### 2. Get the info box
+```{r}
+infobox <- html_node(urlsrc, css = "table.infobox.vcard")
+print(infobox)
+```
+
+
+
+### 3. Make a data frame
+#### a) Parse the infobox table
+```{r}
+infodf <- html_table(infobox, fill = T, header = F)
+```
+
+
+#### b) Name the columns of the table
+```{r results = 'hide'}
+colnames(infodf) <- c("key", "value")
+```
+
+
+#### c) Filter the data frame
+```{r}
+infodf <- filter(infodf, rownames(infodf)==1|infodf$key %in% c("Political party", "Children"))
+infodf[1,1] <- "Full name"
+print(infodf)
+```
+
+
+
+### 4. Make a function
+#### a) Output the data frame
+```{r}
+get_wiki_info <- function(url){
+  url_source <- read_html(url, encoding = "UTF-8")
+  infomation_box <- html_node(url_source, css = "table.infobox.vcard")
+  infomation_df <- html_table(infomation_box, fill = T, header = F) %>% 
+    `colnames<-`(.,c("key", "value"))
+  infomation_df <- infomation_df[rownames(infomation_df)==1|infomation_df$key %in% 
+                                   c("Political party", "Children"),]
+  infomation_df[1,1] <- "Full name"
+  if(!any(infomation_df$key=="Children")){
+    infomation_df <- rbind(infomation_df, c("Children", NA))
+  }
+  return(infomation_df)
+}
+```
+
+
+#### b) Show how your function works
+```{r echo = FALSE}
+get_wiki_info("https://en.wikipedia.org/wiki/Tammy_Duckworth")
+get_wiki_info("https://en.wikipedia.org/wiki/Susan_Collins")
+```
+
+
+
+### 5. Get all senators’ pages
+#### a) Find a list of U.S. congress
+```{r echo = FALSE}
+sels_url <- "https://en.wikipedia.org/wiki/List_of_current_members_of_the_United_States_Senate"
+sels_src <- read_html(sels_url)
+sels_link <- html_nodes(sels_src, xpath = "//table[5]//span//a") %>% 
+  html_attr(.,name = "href") %>%
+  str_c("https://en.wikipedia.org",.)
+print(sels_link)
+```
+
+
+#### b) Create a loop
+```{r}
+res_list <- list()
+for(i in seq_along(sels_link)){
+  res_list[[i]] <- get_wiki_info(sels_link[i])
+  Sys.sleep(0.1)
+}
+```
+
+
+#### c) Clean up the data
+```{r echo = FALSE}
+res_df <- lapply(res_list,t) %>% 
+  do.call(rbind,.) %>% 
+  `colnames<-`(.,.[1,])
+res_df <- res_df[row.names(res_df)=="value",] %>% 
+  data.frame(.)
+rownames(res_df) <- c(1:nrow(res_df))
+index <- str_detect(res_df$Children,"[0-9]") %>% 
+  ifelse(is.na(.),T,.)
+res_df[!index,]$Children <- 1
+res_df$Children <- str_extract(res_df$Children,"[0-9]+") %>% 
+  as.numeric(.)
+res_df$Political.party <- str_extract(res_df$Political.party,"[^[(]]+") %>% 
+  trimws(.,"right")
+res_df[res_df$Political.party=="Democratic–Farmer–Labor Party",]$Political.party <- "Democratic"
+```
+
+##### **Average children number the Senator has**
+```{r echo = FALSE}
+mean(res_df$Children, na.rm = T)
+```
+
+
+##### **Average children number the Party Affiliation have**
+```{r echo = FALSE}
+res_df %>%
+  group_by(`Political.party`) %>%
+  summarize(mean(Children, na.rm = T))
+```
+
