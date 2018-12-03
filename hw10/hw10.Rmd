@@ -1,0 +1,131 @@
+---
+title: "QMSS G5072 Homework 10"
+author: "Mengfei Xiao"
+date: "December 2nd, 2018"
+output: 
+  html_document:
+    keep_md: true
+---
+
+
+
+## Practicing SQL Queries
+```{r set up, echo = FALSE, message = FALSE, warning = FALSE}
+# Connect to the database
+library(DBI)
+witch_con <- dbConnect(RMySQL::MySQL(),
+                       user='student', 
+                       password='mds-is-fun',
+                       dbname='witchcraft', 
+                       host='tbrambor.cczjcoy6i2jn.us-east-1.rds.amazonaws.com',
+                       port = 3306)
+```
+
+
+### 1. Getting to know the data
+#### a) Show a list of the tables included in the database
+```{r message = FALSE, warning = FALSE}
+table_list <- dbListTables(witch_con)
+table_list
+```
+
+
+#### b) Display the column names for the table accused
+```{r message = FALSE, warning = FALSE}
+table_accused <- dbReadTable(witch_con, "accused")
+colnames(table_accused)
+```
+
+
+#### c) Number of people included in the accused table
+```{r message = FALSE, warning = FALSE}
+nrow(table_accused)
+```
+
+
+#### d) Display the columns firstname, sex, and age for 5 cases
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select firstname, sex, age from accused limit 5")
+```
+
+
+#### e) Count the number of nonmissing values for age
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select count(*) from accused where age is not null")
+```
+
+
+#### f) Show a list of unique occupations
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select distinct occupation from accused")
+```
+
+
+
+### 2. Seeing the Devil
+#### a) List the unique devil_types in the data
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select distinct devil_type from devilappearance")
+```
+
+
+#### b) Number of sightings mention the word "black"
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "SELECT count(*) FROM devilappearance where devil_text like '%black%'")
+```
+
+
+#### c) Proportion of the devils are male
+```{r message = FALSE, warning = FALSE}
+male_count <-  dbGetQuery(witch_con, "select sum(devil_type = 'Male') from devilappearance")
+all_count <- dbGetQuery(witch_con, "select count(devil_type) from devilappearance")
+male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]
+```
+
+
+
+### 3. The Trial
+#### a) Average and Maximum numbers of male and female accusers
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select max(male_accusers), avg(male_accusers), 
+           max(female_accusers), avg(female_accusers) from trial")
+```
+
+
+#### b) List the number of sentences by sentence typeist in a table
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select sentence as 'sentence_type', count(sentence) as 'Freq'
+           from trial group by sentence order by count(sentence) desc")
+```
+
+
+#### c) Compare the average number of accusers by the type of verdict
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select verdict as 'verdict_type', avg(male_accusers+female_accusers) as 
+           'Average accusers' from trial where verdict<>'' group by verdict order by 
+           avg(male_accusers+female_accusers) desc")
+```
+
+
+### 4. Tortured Truth
+#### a) Left join the trial and confession tables
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "SELECT count(distinct(confession.confessionref)) as 'Number_of_Confession', 
+           count(distinct(trial.trialref)) as 'Number_of_Trial', 
+           count(distinct(confession.confessionref))/count(distinct(trial.trialref)) 
+           as 'Share_of_Trial_with_confession' 
+           FROM trial LEFT JOIN confession ON trial.trialref = confession.trialref")
+```
+
+
+#### b)
+**Conclusion:** Only 110 of trials have records of torture, and among of which have 35 confessions. Therefore, there is a higher share of confessions among trials with records of torture than trials without such record since the share is 0.3182, larger than 0.2931 in Quesion 4a).
+```{r message = FALSE, warning = FALSE}
+dbGetQuery(witch_con, "select count(distinct(torture.tortureref)) as 'Number_of_Torture', 
+           count(distinct(confession.confessionref)) as 'Number_of_Torture_with_Confession', 
+           count(distinct(confession.confessionref))/count(distinct(torture.tortureref))
+           as 'Share_of_Torture_with_Confession' 
+           FROM torture left join confession on torture.trialref = confession.trialref")
+```
+```
+
