@@ -95,15 +95,15 @@ dbGetQuery(witch_con, "select max(male_accusers), avg(male_accusers),
 #### b) List the number of sentences by sentence typeist in a table
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
 dbGetQuery(witch_con, "select sentence as 'sentence_type', count(sentence) as 'Freq'
-           from trial group by sentence order by count(sentence) desc")
+           from trial where sentence<>'' group by sentence order by count(sentence) desc")
 ```
 
 
 #### c) Compare the average number of accusers by the type of verdict
 ```{r echo = FALSE, message = FALSE, warning = FALSE}
-dbGetQuery(witch_con, "select verdict as 'verdict_type', avg(male_accusers+female_accusers) as 
+dbGetQuery(witch_con, "select verdict as 'verdict_type', avg(male_accusers + female_accusers) as 
            'Average accusers' from trial where verdict<>'' group by verdict order by 
-           avg(male_accusers+female_accusers) desc")
+           avg(male_accusers + female_accusers) desc")
 ```
 
 
