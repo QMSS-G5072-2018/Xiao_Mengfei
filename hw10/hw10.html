@@ -123,7 +123,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">QMSS G5072 Homework 10</h1>
 <h4 class="author"><em>Mengfei Xiao</em></h4>
-<h4 class="date"><em>December 2nd, 2018</em></h4>
+<h4 class="date"><em>December 3rd, 2018</em></h4>
 
 </div>
 
@@ -265,6 +265,8 @@ male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code>
 <h3>3. The Trial</h3>
 <div id="a-average-and-maximum-numbers-of-male-and-female-accusers" class="section level4">
 <h4>a) Average and Maximum numbers of male and female accusers</h4>
+<pre class="r"><code>dbGetQuery(witch_con, &quot;select max(male_accusers), avg(male_accusers), 
+           max(female_accusers), avg(female_accusers) from trial&quot;)</code></pre>
 <pre><code>##   max(male_accusers) avg(male_accusers) max(female_accusers)
 ## 1                 48             0.4182                   27
 ##   avg(female_accusers)
