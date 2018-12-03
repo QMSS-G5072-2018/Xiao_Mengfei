@@ -134,8 +134,6 @@ $(document).ready(function () {
 <h3>1. Getting to know the data</h3>
 <div id="a-show-a-list-of-the-tables-included-in-the-database" class="section level4">
 <h4>a) Show a list of the tables included in the database</h4>
-<pre class="r"><code>table_list &lt;- dbListTables(witch_con)
-table_list</code></pre>
 <pre><code>##  [1] &quot;accused&quot;             &quot;accused_family&quot;      &quot;appeal&quot;             
 ##  [4] &quot;calendarcustom&quot;      &quot;case_person&quot;         &quot;commission&quot;         
 ##  [7] &quot;complaint&quot;           &quot;confession&quot;          &quot;counterstrategy&quot;    
@@ -152,8 +150,6 @@ table_list</code></pre>
 </div>
 <div id="b-display-the-column-names-for-the-table-accused" class="section level4">
 <h4>b) Display the column names for the table accused</h4>
-<pre class="r"><code>table_accused &lt;- dbReadTable(witch_con, &quot;accused&quot;)
-colnames(table_accused)</code></pre>
 <pre><code>##  [1] &quot;accusedref&quot;       &quot;accusedsystemid&quot;  &quot;accusedid&quot;       
 ##  [4] &quot;firstname&quot;        &quot;lastname&quot;         &quot;m_firstname&quot;     
 ##  [7] &quot;m_surname&quot;        &quot;alias&quot;            &quot;patronymic&quot;      
@@ -168,12 +164,10 @@ colnames(table_accused)</code></pre>
 </div>
 <div id="c-number-of-people-included-in-the-accused-table" class="section level4">
 <h4>c) Number of people included in the accused table</h4>
-<pre class="r"><code>nrow(table_accused)</code></pre>
 <pre><code>## [1] 3219</code></pre>
 </div>
 <div id="d-display-the-columns-firstname-sex-and-age-for-5-cases" class="section level4">
 <h4>d) Display the columns firstname, sex, and age for 5 cases</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select firstname, sex, age from accused limit 5&quot;)</code></pre>
 <pre><code>##   firstname    sex age
 ## 1    Mareon Female  NA
 ## 2      Thom   Male  NA
@@ -188,7 +182,6 @@ colnames(table_accused)</code></pre>
 </div>
 <div id="f-show-a-list-of-unique-occupations" class="section level4">
 <h4>f) Show a list of unique occupations</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select distinct occupation from accused&quot;)</code></pre>
 <pre><code>##        occupation
 ## 1            &lt;NA&gt;
 ## 2         Servant
@@ -228,7 +221,6 @@ colnames(table_accused)</code></pre>
 <h3>2. Seeing the Devil</h3>
 <div id="a-list-the-unique-devil_types-in-the-data" class="section level4">
 <h4>a) List the unique devil_types in the data</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select distinct devil_type from devilappearance&quot;)</code></pre>
 <pre><code>##                devil_type
 ## 1                    Male
 ## 2            Female Fairy
@@ -249,15 +241,11 @@ colnames(table_accused)</code></pre>
 </div>
 <div id="b-number-of-sightings-mention-the-word-black" class="section level4">
 <h4>b) Number of sightings mention the word “black”</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;SELECT count(*) FROM devilappearance where devil_text like '%black%'&quot;)</code></pre>
 <pre><code>##   count(*)
 ## 1      121</code></pre>
 </div>
 <div id="c-proportion-of-the-devils-are-male" class="section level4">
 <h4>c) Proportion of the devils are male</h4>
-<pre class="r"><code>male_count &lt;-  dbGetQuery(witch_con, &quot;select sum(devil_type = 'Male') from devilappearance&quot;)
-all_count &lt;- dbGetQuery(witch_con, &quot;select count(devil_type) from devilappearance&quot;)
-male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code></pre>
 <pre><code>## [1] 0.6345178</code></pre>
 </div>
 </div>
@@ -265,8 +253,6 @@ male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code>
 <h3>3. The Trial</h3>
 <div id="a-average-and-maximum-numbers-of-male-and-female-accusers" class="section level4">
 <h4>a) Average and Maximum numbers of male and female accusers</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select max(male_accusers), avg(male_accusers), 
-           max(female_accusers), avg(female_accusers) from trial&quot;)</code></pre>
 <pre><code>##   max(male_accusers) avg(male_accusers) max(female_accusers)
 ## 1                 48             0.4182                   27
 ##   avg(female_accusers)
@@ -274,8 +260,6 @@ male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code>
 </div>
 <div id="b-list-the-number-of-sentences-by-sentence-typeist-in-a-table" class="section level4">
 <h4>b) List the number of sentences by sentence typeist in a table</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select sentence as 'sentence_type', count(sentence) as 'Freq'
-           from trial group by sentence order by count(sentence) desc&quot;)</code></pre>
 <pre><code>##         sentence_type Freq
 ## 1           Execution  205
 ## 2            Released   52
@@ -291,9 +275,6 @@ male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code>
 </div>
 <div id="c-compare-the-average-number-of-accusers-by-the-type-of-verdict" class="section level4">
 <h4>c) Compare the average number of accusers by the type of verdict</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select verdict as 'verdict_type', avg(male_accusers+female_accusers) as 
-           'Average accusers' from trial where verdict&lt;&gt;'' group by verdict order by 
-           avg(male_accusers+female_accusers) desc&quot;)</code></pre>
 <pre><code>##   verdict_type Average accusers
 ## 1       Guilty           5.8043
 ## 2   Not Guilty           4.5581
@@ -305,22 +286,12 @@ male_count$`sum(devil_type = 'Male')`[1]/all_count$`count(devil_type)`[1]</code>
 <h3>4. Tortured Truth</h3>
 <div id="a-left-join-the-trial-and-confession-tables" class="section level4">
 <h4>a) Left join the trial and confession tables</h4>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;SELECT count(distinct(confession.confessionref)) as 'Number_of_Confession', 
-           count(distinct(trial.trialref)) as 'Number_of_Trial', 
-           count(distinct(confession.confessionref))/count(distinct(trial.trialref)) 
-           as 'Share_of_Trial_with_confession' 
-           FROM trial LEFT JOIN confession ON trial.trialref = confession.trialref&quot;)</code></pre>
 <pre><code>##   Number_of_Confession Number_of_Trial Share_of_Trial_with_confession
 ## 1                  941            3211                         0.2931</code></pre>
 </div>
 <div id="b" class="section level4">
 <h4>b)</h4>
 <p><strong>Conclusion:</strong> Only 110 of trials have records of torture, and among of which have 35 confessions. Therefore, there is a higher share of confessions among trials with records of torture than trials without such record since the share is 0.3182, larger than 0.2931 in Quesion 4a).</p>
-<pre class="r"><code>dbGetQuery(witch_con, &quot;select count(distinct(torture.tortureref)) as 'Number_of_Torture', 
-           count(distinct(confession.confessionref)) as 'Number_of_Torture_with_Confession', 
-           count(distinct(confession.confessionref))/count(distinct(torture.tortureref))
-           as 'Share_of_Torture_with_Confession' 
-           FROM torture left join confession on torture.trialref = confession.trialref&quot;)</code></pre>
 <pre><code>##   Number_of_Torture Number_of_Torture_with_Confession
 ## 1               110                                35
 ##   Share_of_Torture_with_Confession
