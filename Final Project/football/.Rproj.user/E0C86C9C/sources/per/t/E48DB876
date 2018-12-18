@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544965292761.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "780897729",
+    "id" : "E48DB876",
+    "lastKnownWriteTime" : 1545095082,
+    "last_content_update" : 1545095082985,
+    "path" : "D:/Rdata/football/R/read_api_team.R",
+    "project_path" : "R/read_api_team.R",
+    "properties" : {
+        "cursorPosition" : "58,0",
+        "scrollLine" : "40",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

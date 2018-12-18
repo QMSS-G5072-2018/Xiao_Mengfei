@@ -1,0 +1,25 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+## Package "football"
+
+The goal of package "football" is to get the football data information of football teams from England. Some summary statistics and graphical visualizations are also provided in this package. I use some technical abilities throughout the course of QMSS G5072 Modern Data Structure, including acquisition, cleaning, transformation, organization, and presentation of data. 
+
+
+## Installation
+
+You can install the released version of "football" from [Github](https://github.com/QMSS-G5072-2018/Xiao_Mengfei). 
+
+Or you can transfer the entire package into a binary package, then select "Tools -> Install Package" from the top options in R Studio, and then library this package. Finally, you can use it and run the examples in each function file.

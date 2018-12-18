@@ -1,0 +1,9 @@
+{
+    "path" : "D:/Rdata/football",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}

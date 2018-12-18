@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1544977602816.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4193302132",
+    "id" : "F97832C1",
+    "lastKnownWriteTime" : 1544977693,
+    "last_content_update" : 1544977693595,
+    "path" : "C:/Users/sweetybaby/Desktop/football/R/read_html_team.R",
+    "project_path" : "R/read_html_team.R",
+    "properties" : {
+        "cursorPosition" : "81,0",
+        "scrollLine" : "49"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
