@@ -3,7 +3,7 @@
 ## Course: Modern Data Structure - Columbia University
 
 #### Hello everyone, my name is Mengfei Xiao. I am very glad to be here. The followings are my basic information:
-#### Email: mx2203@columbia.edu
+#### Email: mx2203@columbia.edu / mengfei.xiao95@gmail.com
 ##### I am a thoughtful, creative, enthusiastic and aspiring young professional with multiple experience in Business Analysis, Data Analysis and Consulting. Currently graduated from Columbia University with a focus on Data, Economics, Capital Markets & Investment, Industry Research, Market Strategy and Case Study.
 
 ##### - Proficient in R and SQL
